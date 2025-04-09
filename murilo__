@@ -1,0 +1,197 @@
+datatable
+
+"use client"
+
+import * as React from "react"
+
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  SortingState,
+  getSortedRowModel,
+  useReactTable,
+  getFilteredRowModel,
+  FilterFnOption,
+  
+
+} from "@tanstack/react-table"
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Button } from "./button"
+import { Input } from "./input"
+
+
+
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  //colocando na interface a paginação
+  pageSize?:number;
+  
+  // pra filtrar
+  searchFields?:string[];
+
+  defaultSearch?:string;
+
+}
+
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  // é o limite de paginação
+  pageSize = 10,
+
+  //pesquisa por filtro
+  searchFields = [],
+
+  defaultSearch = "",
+ 
+
+}: DataTableProps<TData, TValue>): React.JSX.Element {
+  
+  //aqui cria a paginação  
+  const [sorting, setSorting] = React.useState<SortingState>([])
+
+  // aqui cria um filtro com input 
+  const [globalFilter,setGlobalFilter] = React.useState(defaultSearch);
+
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+  
+    getFilteredRowModel: getFilteredRowModel(),
+
+    
+    filterFns:{
+
+        fuzze:(row, _, search) => {
+
+            const data = row.original;
+            data.companyName = data?.company?.name;
+            return searchFields.some((field) => data[field].toggleSorting().includes(search));
+
+        }
+
+    },
+    
+    
+    //pesquisa global
+    globalFilterFn:"fuzzy" as FilterFnOption<TData>,
+
+
+
+    state:{
+        // faz a ordenação
+        sorting,
+        // faz o filtro global
+        globalFilter,
+       
+    },
+
+    // pagina inicial
+    initialState: {
+        pagination:{
+            pageSize,
+        },
+    },
+  });
+
+  return (
+    <div className="rounded-md border">
+
+        
+<div className="flex items-center py-4">
+        
+        
+        <Input
+          placeholder="Filter emails..."
+          value={globalFilter}
+          onChange={(event) =>  setGlobalFilter(event.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+    
+
+     <div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                )
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      
+      </div>
+      <div className="flex items-center justify-end ">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Anterior
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Proxima
+        </Button>
+      </div>
+    </div>
+    
+  )
+}
