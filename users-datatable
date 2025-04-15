@@ -29,11 +29,11 @@ export const columns: ColumnDef<User>[] = [
               <Button
                 variant="ghost"
 
-                className="bg-gray-300 flex p-1 w-50 m-2" 
+                 
                 
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
               >
-                Name
+                Name 
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             )
@@ -53,7 +53,7 @@ export const columns: ColumnDef<User>[] = [
             return (
               <Button 
                 variant="ghost"
-                className="bg-gray-300 flex p-1 w-50 m-2"
+                
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
               >
                 E-mail
@@ -75,15 +75,18 @@ export const columns: ColumnDef<User>[] = [
 
         // função para ordenar em ordem crescent
         header: ({ column }) => {
+          
             return (
               <Button
                 variant="ghost"
-                className="bg-gray-300 flex p-1 w-50 m-2"
+
+                
+                
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 
               >
                 Comany Name
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <ArrowUpDown className="ml-2 h-4 w-4 " />
               </Button>
             )
           },
@@ -109,7 +112,7 @@ export default function UsersDatatable({users}:Props){
   
      data={users}  
   
-     pageSize={15} 
+     pageSize={4} 
   
      searchFields={["id", "name", "username", "email", "company.name"]}
     
